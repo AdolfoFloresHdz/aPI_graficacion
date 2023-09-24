@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformación de Imágenes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Transformación de Imágenes</h1>
+
+        <!-- División para cargar la imagen -->
+        <div>
+            <h2>Cargar Imagen</h2>
+            <!-- Botón para cargar una imagen -->
+            <input type="file" id="fileInput" accept="image/*" class="form-control mb-3">
+        </div>
+
+        <!-- Visualización de la imagen cargada -->
+        <div class="mb-4 text-center">
+            <h2>Imagen Cargada</h2>
+            <img id="image" class="img-fluid">
+        </div>
+
+        <!-- Controles deslizantes para las transformaciones -->
+        <h2>Transformaciones</h2>
+        <div class="mb-3">
+            <label for="rotationSlider" class="form-label">Rotación:</label>
+            <input type="range" id="rotationSlider" min="-180" max="180" value="0" step="1" class="form-range">
+        </div>
+
+        <div class="mb-3">
+            <label for="scaleSlider" class="form-label">Escalado:</label>
+            <input type="range" id="scaleSlider" min="0.1" max="3" value="1" step="0.1" class="form-range">
+        </div>
+
+        <div class="mb-3">
+            <label for="shearXSlider" class="form-label">Cizallamiento X:</label>
+            <input type="range" id="shearXSlider" min="-1" max="1" value="0" step="0.1" class="form-range">
+        </div>
+
+        <div class="mb-3">
+            <label for="shearYSlider" class="form-label">Cizallamiento Y:</label>
+            <input type="range" id="shearYSlider" min="-1" max="1" value="0" step="0.1" class="form-range">
+        </div>
+
+        <div class="mb-3">
+            <label for="translateXSlider" class="form-label">Translación X:</label>
+            <input type="range" id="translateXSlider" min="-100" max="100" value="0" step="1" class="form-range">
+        </div>
+
+        <div class="mb-3">
+            <label for="translateYSlider" class="form-label">Translación Y:</label>
+            <input type="range" id="translateYSlider" min="-100" max="100" value="0" step="1" class="form-range">
+        </div>
+
+        <!-- Botón para aplicar transformaciones y guardar la imagen -->
+        <button id="applyTransformations" class="btn btn-primary">Aplicar y Guardar</button>
+
+        <!-- Botón para guardar la imagen transformada -->
+        <a id="downloadLink" download="transformed_image.png">
+            <button id="saveTransformedImage" class="btn btn-success">Guardar Imagen Transformada</button>
+        </a>
+    </div>
+
+    <!-- Script para manejar la carga de imágenes y transformaciones -->
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const image = document.getElementById('image');
+        const rotationSlider = document.getElementById('rotationSlider');
+        const scaleSlider = document.getElementById('scaleSlider');
+        const shearXSlider = document.getElementById('shearXSlider');
+        const shearYSlider = document.getElementById('shearYSlider');
+        const translateXSlider = document.getElementById('translateXSlider');
+        const translateYSlider = document.getElementById('translateYSlider');
+        const applyTransformationsButton = document.getElementById('applyTransformations');
+        const downloadLink = document.getElementById('downloadLink');
+
+        let loadedImage = null;
+
+        // Función para cargar una imagen
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    image.src = e.target.result;
+                    loadedImage = new Image();
+                    loadedImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Función para aplicar transformaciones y mostrar la imagen transformada
+        applyTransformationsButton.addEventListener('click', () => {
+            if (loadedImage) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = loadedImage.width;
+                canvas.height = loadedImage.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Aplicar transformaciones
+                const angle = parseFloat(rotationSlider.value);
+                const scale = parseFloat(scaleSlider.value);
+                const shearX = parseFloat(shearXSlider.value);
+                const shearY = parseFloat(shearYSlider.value);
+                const translateX = parseFloat(translateXSlider.value);
+                const translateY = parseFloat(translateYSlider.value);
+
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(angle * (Math.PI / 180));
+                ctx.scale(scale, scale);
+                ctx.transform(1, shearX, shearY, 1, 0, 0);
+                ctx.translate(translateX, translateY);
+                ctx.drawImage(loadedImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+                ctx.restore();
+
+                // Mostrar la imagen transformada
+                image.src = canvas.toDataURL();
+
+                // Actualizar el enlace de descarga
+                downloadLink.href = canvas.toDataURL();
+            }
+        });
+    </script>
+
+    <!-- Agregar el enlace al JavaScript de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
